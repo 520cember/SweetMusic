@@ -2,11 +2,14 @@
 //  AppDelegate.m
 //  SweetMusic
 //
-//  Created by 董兴斌 on 16/2/23.
+//  Created by 董兴斌 on 15/11/15.
 //  Copyright © 2016年 董兴斌. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "LXTabBarViewController.h"
+#import "LeftViewController.h"
+
 
 @interface AppDelegate ()
 
@@ -16,9 +19,34 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    LeftViewController *leftVC = [[LeftViewController alloc] init];
+    LXTabBarViewController *tbc = [[LXTabBarViewController alloc] init];
+    self.leftSlideVC = [[LeftSlideViewController alloc] initWithLeftView:leftVC andMainView:tbc];
+    [self.leftSlideVC setPanEnabled:YES];
+    self.window.rootViewController = self.leftSlideVC;
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
+    [self playLaunchImageView];
     return YES;
 }
+
+- (void)playLaunchImageView{
+    UIImageView *launchImageView = [[UIImageView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    launchImageView.image = [UIImage imageNamed:@"launchImage"];
+    [self.window addSubview:launchImageView];
+    [self.window bringSubviewToFront:launchImageView];
+    [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
+        launchImageView.frame = CGRectMake(-60, -85, kScreenW+60*2, kScreenH+85*2);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:2 animations:^{
+            launchImageView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [launchImageView removeFromSuperview];
+        }];
+    }];
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -31,7 +59,10 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    if ([MusicPlayerViewController sharedInstance].isPlaying) {
+        [[MusicPlayerViewController sharedInstance] playAnimation];
+    }
+   
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
